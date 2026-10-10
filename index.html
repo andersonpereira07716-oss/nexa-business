@@ -3,38 +3,151 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NEXA APPS - Storefront</title>
+  <title>NEXA APPS - Ecossistema Oficial</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #080811; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; }
-    header { text-align: center; margin-bottom: 30px; padding: 20px 0; border-bottom: 1px solid #1f1f3a; }
-    h1 { color: #00f0ff; letter-spacing: 2px; font-size: 1.8rem; }
-    p.subtitle { color: #888; font-size: 0.9rem; margin-top: 5px; }
-    .card { background: #121222; border: 2px solid #00f0ff; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 0 15px rgba(0,240,255,0.2); }
-    .card h3 { color: #00f0ff; font-size: 1.4rem; margin-bottom: 8px; }
-    .card p { color: #aaa; font-size: 0.85rem; margin-bottom: 15px; line-height: 1.4; }
+    body { background: #080811; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+    
+    header { text-align: center; margin-bottom: 25px; padding: 20px 0; border-bottom: 1px solid #1f1f3a; }
+    h1 { color: #00f0ff; letter-spacing: 2px; font-size: 2rem; text-shadow: 0 0 10px rgba(0,240,255,0.5); }
+    p.subtitle { color: #888; font-size: 0.95rem; margin-top: 5px; }
+
+    /* Barra de Pesquisa e Categorias */
+    .controls { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
+    .search-bar { width: 100%; padding: 12px 16px; background: #121222; border: 1.5px solid #1f1f3a; border-radius: 12px; color: #fff; font-size: 0.95rem; outline: none; transition: 0.3s; }
+    .search-bar:focus { border-color: #00f0ff; box-shadow: 0 0 10px rgba(0,240,255,0.3); }
+    
+    .categories { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; }
+    .cat-btn { background: #121222; border: 1px solid #1f1f3a; color: #aaa; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; white-space: nowrap; transition: 0.3s; }
+    .cat-btn.active, .cat-btn:hover { background: #00f0ff; color: #080811; font-weight: bold; border-color: #00f0ff; }
+
+    /* Cards de Aplicações */
+    .grid { display: flex; flex-direction: column; gap: 20px; }
+    .card { background: #121222; border: 1.5px solid #1f1f3a; border-radius: 16px; padding: 20px; position: relative; transition: 0.3s; }
+    .card.featured { border-color: #00f0ff; box-shadow: 0 0 15px rgba(0,240,255,0.15); }
+    .card:hover { transform: translateY(-2px); border-color: #00f0ff; }
+    
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .card-title { color: #00f0ff; font-size: 1.3rem; display: flex; align-items: center; gap: 8px; }
+    .badge { background: rgba(0,240,255,0.1); border: 1px solid #00f0ff; color: #00f0ff; font-size: 0.75rem; padding: 3px 8px; border-radius: 6px; }
+    
+    .card-meta { display: flex; gap: 15px; color: #ffca28; font-size: 0.85rem; margin-bottom: 12px; }
+    .card-meta span { color: #888; }
+    
+    .card p { color: #aaa; font-size: 0.9rem; margin-bottom: 18px; line-height: 1.4; }
+
+    /* Botões */
     .btn-group { display: flex; gap: 10px; }
     .btn { flex: 1; text-align: center; padding: 12px; border-radius: 10px; font-weight: bold; text-decoration: none; font-size: 0.9rem; transition: 0.3s; }
     .btn-play { background: #00f0ff; color: #080811; }
+    .btn-play:hover { background: #33f3ff; box-shadow: 0 0 10px rgba(0,240,255,0.4); }
     .btn-apk { background: rgba(255,0,127,0.1); border: 1.5px solid #ff007f; color: #ff007f; }
+    .btn-apk:hover { background: #ff007f; color: #fff; box-shadow: 0 0 10px rgba(255,0,127,0.4); }
+
+    /* Rodapé e Apoio */
+    footer { text-align: center; margin-top: 40px; padding: 25px 0; border-top: 1px solid #1f1f3a; color: #666; font-size: 0.85rem; }
+    .dev-info { color: #00f0ff; font-weight: bold; }
   </style>
 </head>
 <body>
+
   <header>
     <h1>⚡ NEXA APPS</h1>
-    <p class="subtitle">Ecossistema de Aplicações e Jogos</p>
+    <p class="subtitle">Loja Oficial de Aplicações e Jogos Desenvolvidos pela NEXA</p>
   </header>
 
-  <main>
-    <!-- Card do Neon Rush -->
-    <div class="card">
-      <h3>⚡ NEON RUSH</h3>
-      <p>Cyberpunk Endless Runner com skins personalizáveis, efeitos sonoros e ícones oficiais atualizados.</p>
+  <div class="controls">
+    <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Pesquisar aplicativo ou jogo..." onkeyup="filterApps()">
+    <div class="categories">
+      <button class="cat-btn active" onclick="filterCategory('todos', this)">Todos</button>
+      <button class="cat-btn" onclick="filterCategory('jogos', this)">🎮 Jogos</button>
+      <button class="cat-btn" onclick="filterCategory('segurança', this)">🛡️ Segurança</button>
+      <button class="cat-btn" onclick="filterCategory('gestão', this)">📊 Gestão & Serviços</button>
+    </div>
+  </div>
+
+  <main class="grid" id="appsGrid">
+
+    <!-- Neon Rush -->
+    <div class="card featured" data-category="jogos" data-name="neon rush">
+      <div class="card-header">
+        <h3 class="card-title">⚡ NEON RUSH</h3>
+        <span class="badge">DESTAQUE</span>
+      </div>
+      <div class="card-meta">
+        ★ 4.9 <span>(120+ avaliações)</span> • 📥 1.2k+ downloads
+      </div>
+      <p>Cyberpunk Endless Runner com skins personalizáveis, efeitos sonoros imersivos e ícones oficiais atualizados.</p>
       <div class="btn-group">
         <a href="https://neon-rush-wine.vercel.app" target="_blank" class="btn btn-play">JOGAR ONLINE</a>
         <a href="https://neon-rush-wine.vercel.app/neon-rush.apk" download="neon-rush.apk" class="btn btn-apk">BAIXAR APK</a>
       </div>
     </div>
+
+    <!-- FÔNIX / SentinelApp -->
+    <div class="card" data-category="segurança" data-name="fônix sentinelapp">
+      <div class="card-header">
+        <h3 class="card-title">🛡️ FÔNIX / SentinelApp</h3>
+        <span class="badge">UTILITÁRIO</span>
+      </div>
+      <div class="card-meta">
+        ★ 4.8 <span>(85 avaliações)</span> • 📥 500+ downloads
+      </div>
+      <p>Aplicação de segurança pessoal com rastreamento de localização em segundo plano e acionador de emergência em tempo real.</p>
+      <div class="btn-group">
+        <a href="#" class="btn btn-play" style="background:#222; color:#888; cursor:not-allowed;">EM BREVE</a>
+      </div>
+    </div>
+
+    <!-- Clube Ativo -->
+    <div class="card" data-category="gestão" data-name="clube ativo">
+      <div class="card-header">
+        <h3 class="card-title">📊 Clube Ativo</h3>
+        <span class="badge">SISTEMA</span>
+      </div>
+      <div class="card-meta">
+        ★ 5.0 <span>(40 avaliações)</span> • 📥 300+ utilizadores
+      </div>
+      <p>Plataforma completa de gestão de clubes com cartão de sócio digital e agendamento de espaços integrados.</p>
+      <div class="btn-group">
+        <a href="#" class="btn btn-play" style="background:#222; color:#888; cursor:not-allowed;">EM BREVE</a>
+      </div>
+    </div>
+
   </main>
+
+  <footer>
+    <p>Desenvolvido por <span class="dev-info">Anderson Pereira Silva</span></p>
+    <p style="margin-top: 5px;">© 2026 NEXA APPS. Todos os direitos reservados.</p>
+  </footer>
+
+  <script>
+    function filterApps() {
+      let input = document.getElementById('searchInput').value.toLowerCase();
+      let cards = document.querySelectorAll('.card');
+      cards.forEach(card => {
+        let name = card.getAttribute('data-name');
+        if (name.includes(input)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    function filterCategory(cat, btn) {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      let cards = document.querySelectorAll('.card');
+      cards.forEach(card => {
+        if (cat === 'todos' || card.getAttribute('data-category') === cat) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+  </script>
+
 </body>
 </html>
